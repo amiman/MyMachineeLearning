@@ -1,11 +1,11 @@
+import glob
 import os
 import sys
-import glob
 
 import dlib
 from skimage import io
 
-from CreateXML import DetectionXML
+from DlibObjectDetection.MyMachineeLearning.CreateXML import DetectionXML
 
 # Params
 detectorPath = sys.argv[1]

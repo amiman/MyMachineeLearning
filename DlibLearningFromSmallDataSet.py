@@ -1,14 +1,7 @@
-import cv2
-import numpy as np
-import sys
-import glob
 import os
+import sys
+
 import dlib
-from skimage import io
-import math
-from matplotlib import pyplot as plt
-import ntpath
-from CreateXML import DetectionXML
 
 # The idea of learning from a small data set is the following:
 # 1. Use a simple linear classifier that can be trained using small data set and give reasonable results
