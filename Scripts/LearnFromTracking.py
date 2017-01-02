@@ -11,7 +11,7 @@ import dlib
 import numpy as np
 from skimage import io
 
-from DlibObjectDetection.MyMachineeLearning.CreateXML import DetectionXML
+from DlibObjectDetection.MyMachineeLearning.Code.DetectionXML import DetectionXML
 
 
 def getBoxCenter(box):
