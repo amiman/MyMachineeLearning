@@ -13,11 +13,12 @@ testing_folder = sys.argv[2]
 xmlOutput = sys.argv[3]
 
 # Create an xml detection file
-xmlDetection = DetectionXML(xmlOutput)
+xmlDetection = DetectionXML(xmlOutput,0)
 
 # Now let's use the detector as you would in a normal application.  First we
 # will load it from disk.
 detector = dlib.simple_object_detector(detectorPath)
+
 
 # # We can look at the HOG filter we learned.  It should look like a face.  Neat!
 # win_det = dlib.image_window()
@@ -36,7 +37,8 @@ for f in glob.glob(os.path.join(testing_folder, "*.bmp")):
             k, d.left(), d.top(), d.right(), d.bottom()))
 
     # Save detection
-    xmlDetection.addImage(f, dets)
+    if(len(dets) > 0):
+        xmlDetection.addImage(f, dets)
 
 # Export file
 xmlDetection.exportXML()

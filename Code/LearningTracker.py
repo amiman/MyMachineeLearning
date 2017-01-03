@@ -25,7 +25,7 @@ class LearningTracker(object):
 
         # params for ShiTomasi corner detection
         self.feature_params = dict(maxCorners=1000,
-                              qualityLevel=0.3,
+                              qualityLevel=0.8,
                               minDistance=5,
                               blockSize=5)
 
@@ -128,17 +128,25 @@ class LearningTracker(object):
 
         return newDetection
 
-    def Learn(self):
+    def Learn(self, type):
 
-        # Get the detections from the xml file
-        FrameDataList = self.detectionXML.getImageDetections()
+        # First do forward tracking
+        if(type == 1):
+            self.LearnFrameDataForward(self.detectionXML.getImageDetections())
 
+        # Next get the reverse data
+        else:
+            self.LearnFrameDataBackward(self.detectionXML.getImageDetections())
+
+    def LearnFrameDataForward(self, FrameDataList):
         # Go over the detections and start track the detections
         index = 0
+        lastSavedFrame = -1
         for frame in FrameDataList:
 
             if index == 0:
-                # self.outputDetectionXML.addImage(frame.GetFilePath(),frame.GetDetections())
+                self.outputDetectionXML.addImage(frame.GetFilePath(),frame.GetDetections())
+                lastSavedFrame = self.inputImageDir.GetFileIndexByName(frame.GetFrameBaseName())
                 prevFrame = frame
                 index += 1
                 continue
@@ -146,7 +154,7 @@ class LearningTracker(object):
             currnetFrame = frame
 
             # Check if the current frame and the prevframe are one after the other
-            print prevFrame.GetFrameBaseName()
+            # print prevFrame.GetFrameBaseName()
 
             prevFrameNumber = self.inputImageDir.GetFileIndexByName(prevFrame.GetFrameBaseName())
             currentFrameNumber = self.inputImageDir.GetFileIndexByName(currnetFrame.GetFrameBaseName())
@@ -155,12 +163,67 @@ class LearningTracker(object):
 
                 # We have two successive frames with detections find which detections correpononds to the same object wnd which are not.
                 # Track the ones that don't have successive match
+                if(lastSavedFrame != prevFrameNumber):
+                    self.outputDetectionXML.addImage(prevFrame.GetFilePath(), prevFrame.GetDetections())
                 self.TrackingTwoSuccessiveFrames(prevFrame,currnetFrame)
+                lastSavedFrame = currentFrameNumber
 
             else:
 
                 # The prevous frame who add detections and the current one are not successive start tracking from the current image to the next detection
-                self.TrackingFrame(prevFrame, prevFrameNumber, currentFrameNumber )
+                if(lastSavedFrame != prevFrameNumber):
+                    self.outputDetectionXML.addImage(prevFrame.GetFilePath(), prevFrame.GetDetections())
+
+                files = self.inputImageDir.GetFilesPathUsingIndexes(prevFrameNumber, currentFrameNumber)
+                self.TrackingFrame(prevFrame, files )
+
+
+            # Update data for next iteration
+            prevFrame = currnetFrame
+            index += 1
+
+    def LearnFrameDataBackward(self, FrameDataList):
+
+        # Go over the detections and start track the detections
+        index = 0
+        lastSavedFrame = -1
+        for i in range(len(FrameDataList)):
+
+            frame = FrameDataList.pop()
+
+            if index == 0:
+                self.outputDetectionXML.addImage(frame.GetFilePath(),frame.GetDetections())
+                lastSavedFrame = self.inputImageDir.GetFileIndexByName(frame.GetFrameBaseName())
+                prevFrame = frame
+                index += 1
+                continue
+
+            currnetFrame = frame
+
+            # Check if the current frame and the prevframe are one after the other
+            # print prevFrame.GetFrameBaseName()
+
+            prevFrameNumber = self.inputImageDir.GetFileIndexByName(prevFrame.GetFrameBaseName())
+            currentFrameNumber = self.inputImageDir.GetFileIndexByName(currnetFrame.GetFrameBaseName())
+
+            if currentFrameNumber == prevFrameNumber - 1:
+
+                # We have two successive frames with detections find which detections correpononds to the same object wnd which are not.
+                # Track the ones that don't have successive match
+                if(lastSavedFrame != prevFrameNumber):
+                    self.outputDetectionXML.addImage(prevFrame.GetFilePath(), prevFrame.GetDetections())
+                self.TrackingTwoSuccessiveFrames(prevFrame,currnetFrame)
+                lastSavedFrame = currentFrameNumber
+
+            else:
+
+                # The prevous frame who add detections and the current one are not successive start tracking from the current image to the next detection
+                if(lastSavedFrame != prevFrameNumber):
+                    self.outputDetectionXML.addImage(prevFrame.GetFilePath(), prevFrame.GetDetections())
+
+                files = self.inputImageDir.GetFilesPathUsingIndexes(currentFrameNumber,prevFrameNumber)
+                files.reverse()
+                self.TrackingFrame(prevFrame, files )
 
 
             # Update data for next iteration
@@ -212,19 +275,18 @@ class LearningTracker(object):
         for a, boundingBox in enumerate(newDetections):
             detections.append(boundingBox)
 
+        print "TrackingTwoSuccessiveFrames " + currentFrame.GetFrameBaseName()
         self.outputDetectionXML.addImage(currentFrame.GetFilePath(), detections)
 
-    def TrackingFrame(self, prevFrame, currentFrameIndex, nextFrameIndex):
+    def TrackingFrame(self, prevFrame, files):
 
         # Start tracking from current image unitlo we get to the next image index or we can't track anymore
-        files = self.inputImageDir.GetFilesPathUsingIndexes(currentFrameIndex, nextFrameIndex)
         index = 0
         for file in files:
 
             # The first index is the current frame
             if index == 0:
                 prevDetections = prevFrame.GetDetections()
-                self.outputDetectionXML.addImage(prevFrame.GetFilePath(),prevDetections)
                 prevImage = cv2.imread(prevFrame.GetFilePath(),0)
                 index += 1
                 continue
@@ -250,6 +312,7 @@ class LearningTracker(object):
                 newDetections.append(newDetection)
 
             if(len(newDetections) > 0):
+                print "TrackingFrame " + file
                 self.outputDetectionXML.addImage(file,newDetections)
 
             prevImage = currentImage

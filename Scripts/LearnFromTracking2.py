@@ -7,7 +7,6 @@ import os
 import cv2
 
 from DlibObjectDetection.MyMachineeLearning.Code.LearningTracker import LearningTracker
-from DlibObjectDetection.MyMachineeLearning.Code.DetectionXML import DetectionXML
 
 def SaveImage(filePath,outputDir,index,img):
 
@@ -29,8 +28,16 @@ xmlOutput = outputPath + "\\detecions.xml"
 # Crate learning tracker
 learnTracker = LearningTracker(inputDirectory, ".bmp", xmlInput, xmlOutput)
 
-# Learn using traking
-learnTracker.Learn()
+# Learn using tracking
+learnTracker.Learn(1)
+
+# Save xml detections file
+learnTracker.ExportXML()
+
+learnTracker = LearningTracker(inputDirectory, ".bmp", xmlOutput, xmlOutput)
+
+# Learn using tracking
+learnTracker.Learn(0)
 
 # Save xml detections file
 learnTracker.ExportXML()
