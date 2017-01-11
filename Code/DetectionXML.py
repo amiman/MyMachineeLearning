@@ -29,8 +29,8 @@ class DetectionXML(object):
 
         elif type == 1:
 
-            tree = ET.parse(self.path)
-            self.root = tree.getroot()
+            self.tree = ET.parse(self.path)
+            self.root = self.tree.getroot()
 
 
     def setPath(self,path):
@@ -76,6 +76,10 @@ class DetectionXML(object):
 
         return frameDataList
 
+    def getNubmerOfTagInFile(self, tagName):
+
+        tagSearch = 'count(//' + tagName + ')'
+        return self.tree.xpath(tagSearch)
 
 
 

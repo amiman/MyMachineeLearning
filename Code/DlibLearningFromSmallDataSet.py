@@ -1,7 +1,12 @@
 import os
 import sys
 
-import dlib
+import ObjectTrainner
+import ObjectDetector
+import LearningTracker
+import DetectionXML
+
+import Util
 
 # The idea of learning from a small data set is the following:
 # 1. Use a simple linear classifier that can be trained using small data set and give reasonable results
@@ -12,41 +17,114 @@ import dlib
 # 6. When there is enough data move fom simple linear classifier to training using deep learning
 
 
+# Params
+TrainFolder = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectDetector\TrainingImages")
+TestFolder = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectDetector\TestingImages")
+TrainXMLFile = "training.xml"
+ImageFileExtension = ".bmp"
+
+InputImageDirectory = os.path.normpath("C:\_work\Data\SpecficTestCases\SwearLids\AUDI\A4\IN-AN_7822_20161201_115848\In")
+OutputPath = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectDetector\Output")
+
+ObjectSVMOutput = OutputPath + "\detector.svm"
+DetectionOutput = InputImageDirectory + "\detectionsDownSampled.xml"
+DetectionOutputTemp = InputImageDirectory + "\detections2.xml"
+
+DetectionTag = "box"
+
+# TrainFolder = InputImageDirectory
+# TrainXMLFile = "detections2.xml"
+
+# Flags
+Verbose = True
+Down_Sample = True
+
+# Preprocessing - Do several oprations before running the main algorithm
+if(Down_Sample):
+
+    if(Verbose):
+        print("DownSampling training folder")
+
+    # Crate a folder for the downsampled images
+    TrainFolderDownSample = TrainFolder + "\DownSample"
+    TrainDownsampledXML = TrainFolderDownSample + "\\" + TrainXMLFile
+    try:
+        os.mkdir(TrainFolderDownSample)
+    except:
+        print("Folder allready exsits")
+
+    # Downsample images
+    Util.DownSampleTrainingFolder(TrainFolder,TrainFolderDownSample,2,".jpg",TrainFolder + "\\" + TrainXMLFile, TrainDownsampledXML )
+
+    TrainFolder = TrainFolderDownSample
+
+    if (Verbose):
+        print("DownSampling input folder")
+
+    InputImageDirectoryDownSample = TrainFolder + "\DownSample"
+    try:
+        os.mkdir(InputImageDirectoryDownSample)
+    except:
+        print("Folder allready exsits")
+
+    Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 2, ".bmp")
+    InputImageDirectory = InputImageDirectoryDownSample
+
+# Start loop on stages 1- 4
+# numbreOfOldDetection = 0
+# numberOfNewDetection = 1
+# while(numberOfNewDetection > numbreOfOldDetection):
+
 ################################################## 1. Learn simpel linear classsfier #############################################################
 
-# Params
-train_folder = sys.argv[1]
-test_folder = sys.argv[2]
+    if (Verbose):
+        print("Training object detector")
 
-# Do trainnig using dlib libary. We can use any other algorithm to do our initial training.
-options = dlib.simple_object_detector_training_options()
+    trainer = ObjectTrainner.ObjectTrainner(TrainFolder,TestFolder,TrainXMLFile)
+    trainer.RunTraining(ObjectSVMOutput)
 
-# For symmetirc objects
-options.add_left_right_image_flips = True
+################################################## 2. Detect objects in videos #############################################################
 
-# The trainer is a kind of support vector machine and therefore has the usual
-# SVM C parameter.  In general, a bigger C encourages it to fit the training
-# data better but might lead to overfitting.  You must find the best C value
-# empirically by checking how well the trained detector works on a test set of
-# images you haven't trained on.  Don't just leave the value set at 5.  Try a
-# few different C values and see what works best for your data.
-options.C = 5
+    if (Verbose):
+        print("Detecting object in movie")
 
-# Tell the code how many CPU cores your computer has for the fastest training.
-options.num_threads = 4
-options.be_verbose = True
+    detector = ObjectDetector.ObjectDetector(ObjectSVMOutput)
+    detector.Detect(InputImageDirectory,ImageFileExtension,DetectionOutput,verbose=True)
 
-training_xml_path = os.path.join(train_folder, "training.xml")
-testing_xml_path = os.path.join(test_folder, "testing.xml")
+################################################## 3. Track objects in videos #############################################################
+#
+    if (Verbose):
+        print("Tracking detections")
 
-# This function does the actual training.  It will save the final detector to
-# detector.svm.  The input is an XML file that lists the images in the training
-# dataset and also contains the positions of the face boxes.  To create your
-# own XML files you can use the imglab tool which can be found in the
-# tools/imglab folder.  It is a simple graphical tool for labeling objects in
-# images with boxes.  To see how to use it read the tools/imglab/README.txt
-# file.  But for this example, we just use the training.xml file included with
-# dlib.
-dlib.train_simple_object_detector(training_xml_path, "detector.svm", options)
+#     learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutputTemp)
+#
+#     # Learn using tracking tracking the image forward
+#     learnTracker.Learn(1)
+#
+#     # Save xml detections file
+#     learnTracker.ExportXML()
+#
+#     learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutputTemp, DetectionOutputTemp)
+#
+#     # Learn using tracking tracking the image backward
+#     learnTracker.Learn(0)
+#
+#     # Save xml detections file
+#     learnTracker.ExportXML()
+#
+# ################################################## 4. Update for next iteration #############################################################
+#
+    if (Verbose):
+        print("Update data for next itreation")
 
-################################################## 2. Detect and track objects in videos (stages 2- 3) #############################################################
+#     DetectionOutput = DetectionOutputTemp
+#     numbreOfOldDetection = numberOfNewDetection
+#
+#     TrainFolder = InputImageDirectory
+#
+#
+#     # Count the number of new detections
+#     xmlRead = DetectionXML.DetectionXML(DetectionOutput,1)
+#
+#     numberOfNewDetection = xmlRead.getNubmerOfTagInFile(DetectionTag)
+
