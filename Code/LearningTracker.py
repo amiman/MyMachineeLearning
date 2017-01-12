@@ -25,12 +25,12 @@ class LearningTracker(object):
 
         # params for ShiTomasi corner detection
         self.feature_params = dict(maxCorners=1000,
-                              qualityLevel=0.8,
-                              minDistance=5,
-                              blockSize=5)
+                              qualityLevel=0.9,
+                              minDistance=7,
+                              blockSize=7)
 
         # Parameters for lucas kanade optical flow
-        self.lk_params = dict(winSize=(10, 10),
+        self.lk_params = dict(winSize=(5, 5),
                          maxLevel=5,
                          criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 50, 0.001))
 
@@ -265,7 +265,7 @@ class LearningTracker(object):
                 if (newDetection.top() < 0 or newDetection.left() < 0 or newDetection.right() >= currentImage.shape[1]-10 or newDetection.bottom() >= currentImage.shape[0]-10):
                     continue
 
-                print newDetection
+                # print newDetection
                 trackingIndex += 1
 
                 # 2.3 Add this new tracked image to the detections
@@ -275,7 +275,7 @@ class LearningTracker(object):
         for a, boundingBox in enumerate(newDetections):
             detections.append(boundingBox)
 
-        print "TrackingTwoSuccessiveFrames " + currentFrame.GetFrameBaseName()
+        # print "TrackingTwoSuccessiveFrames " + currentFrame.GetFrameBaseName()
         self.outputDetectionXML.addImage(currentFrame.GetFilePath(), detections)
 
     def TrackingFrame(self, prevFrame, files):
@@ -302,7 +302,7 @@ class LearningTracker(object):
                 if (newDetection is None):
                     continue
 
-                print newDetection
+                # print newDetection
 
                 # Check box
                 if (newDetection.top() < 0 or newDetection.left() < 0 or newDetection.right() >= prevImage.shape[1] - 10 or newDetection.bottom() >= prevImage.shape[0] - 10):
@@ -312,7 +312,7 @@ class LearningTracker(object):
                 newDetections.append(newDetection)
 
             if(len(newDetections) > 0):
-                print "TrackingFrame " + file
+                # print "TrackingFrame " + file
                 self.outputDetectionXML.addImage(file,newDetections)
 
             prevImage = currentImage

@@ -61,19 +61,20 @@ if(Down_Sample):
     if (Verbose):
         print("DownSampling input folder")
 
-    InputImageDirectoryDownSample = TrainFolder + "\DownSample"
+    InputImageDirectoryDownSample = InputImageDirectory + "\DownSample"
+    # InputImageDirectoryDownSample = TrainFolder + "\DownSample"
     try:
         os.mkdir(InputImageDirectoryDownSample)
     except:
         print("Folder allready exsits")
 
-    Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 2, ".bmp")
+    # Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 2, ".bmp")
     InputImageDirectory = InputImageDirectoryDownSample
 
 # Start loop on stages 1- 4
-# numbreOfOldDetection = 0
-# numberOfNewDetection = 1
-# while(numberOfNewDetection > numbreOfOldDetection):
+numbreOfOldDetection = 0
+numberOfNewDetection = 1
+while(numberOfNewDetection > numbreOfOldDetection):
 
 ################################################## 1. Learn simpel linear classsfier #############################################################
 
@@ -92,39 +93,41 @@ if(Down_Sample):
     detector.Detect(InputImageDirectory,ImageFileExtension,DetectionOutput,verbose=True)
 
 ################################################## 3. Track objects in videos #############################################################
-#
+
     if (Verbose):
         print("Tracking detections")
 
-#     learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutputTemp)
-#
-#     # Learn using tracking tracking the image forward
-#     learnTracker.Learn(1)
-#
-#     # Save xml detections file
-#     learnTracker.ExportXML()
-#
-#     learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutputTemp, DetectionOutputTemp)
-#
-#     # Learn using tracking tracking the image backward
-#     learnTracker.Learn(0)
-#
-#     # Save xml detections file
-#     learnTracker.ExportXML()
-#
-# ################################################## 4. Update for next iteration #############################################################
-#
+    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutputTemp)
+
+    # Learn using tracking tracking the image forward
+    learnTracker.Learn(1)
+
+    # Save xml detections file
+    learnTracker.ExportXML()
+
+    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutputTemp, DetectionOutputTemp)
+
+    # Learn using tracking tracking the image backward
+    # learnTracker.Learn(0)
+
+    # Save xml detections file
+    # learnTracker.ExportXML()
+
+################################################## 4. Update for next iteration #############################################################
+
     if (Verbose):
         print("Update data for next itreation")
 
-#     DetectionOutput = DetectionOutputTemp
-#     numbreOfOldDetection = numberOfNewDetection
-#
-#     TrainFolder = InputImageDirectory
-#
-#
-#     # Count the number of new detections
-#     xmlRead = DetectionXML.DetectionXML(DetectionOutput,1)
-#
-#     numberOfNewDetection = xmlRead.getNubmerOfTagInFile(DetectionTag)
+    DetectionOutput = DetectionOutputTemp
+    numbreOfOldDetection = numberOfNewDetection
+
+    TrainFolder = InputImageDirectory
+
+    # Count the number of new detections
+    xmlRead = DetectionXML.DetectionXML(DetectionOutput,1)
+
+    numberOfNewDetection = xmlRead.getNubmerOfTagInFile(DetectionTag)
+
+    print numbreOfOldDetection
+    print numberOfNewDetection
 
