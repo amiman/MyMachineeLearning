@@ -37,7 +37,8 @@ DetectionTag = "box"
 
 # Flags
 Verbose = True
-Down_Sample = True
+Down_Sample = False
+Crop_For_RAM_Saving = False
 
 # Preprocessing - Do several oprations before running the main algorithm
 if(Down_Sample):
@@ -54,7 +55,7 @@ if(Down_Sample):
         print("Folder allready exsits")
 
     # Downsample images
-    Util.DownSampleTrainingFolder(TrainFolder,TrainFolderDownSample,2,".jpg",TrainFolder + "\\" + TrainXMLFile, TrainDownsampledXML )
+    Util.DownSampleTrainingFolder(TrainFolder,TrainFolderDownSample,3,".jpg",TrainFolder + "\\" + TrainXMLFile, TrainDownsampledXML )
 
     TrainFolder = TrainFolderDownSample
 
@@ -62,21 +63,36 @@ if(Down_Sample):
         print("DownSampling input folder")
 
     InputImageDirectoryDownSample = InputImageDirectory + "\DownSample"
-    # InputImageDirectoryDownSample = TrainFolder + "\DownSample"
+    InputImageDirectoryDownSample = TrainFolder + "\DownSample"
     try:
         os.mkdir(InputImageDirectoryDownSample)
     except:
         print("Folder allready exsits")
 
-    # Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 2, ".bmp")
+    Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 3, ".bmp")
     InputImageDirectory = InputImageDirectoryDownSample
+    DetectionOutput = InputImageDirectory + "\detectionsDownSampled.xml"
+    DetectionOutputTemp = InputImageDirectory + "\detections2.xml"
 
 # Start loop on stages 1- 4
 numbreOfOldDetection = 0
 numberOfNewDetection = 1
 while(numberOfNewDetection > numbreOfOldDetection):
 
-################################################## 1. Learn simpel linear classsfier #############################################################
+################################################## 0. Preprocessiong #############################################################
+    if(Crop_For_RAM_Saving):
+
+        TrainFolderCrop = TrainFolder + "\Crop"
+        TrainCropdXML = TrainFolderCrop + "\\" + TrainXMLFile
+        try:
+            os.mkdir(TrainFolderCrop)
+        except:
+            print("Folder allready exsits")
+
+        Util.CropImageAccodringToDetections(TrainFolderCrop,TrainFolder + "\\" + TrainXMLFile,TrainCropdXML)
+        TrainFolder = TrainFolderCrop
+
+################################################# 1. Learn simpel linear classsfier #############################################################
 
     if (Verbose):
         print("Training object detector")
@@ -127,6 +143,10 @@ while(numberOfNewDetection > numbreOfOldDetection):
     xmlRead = DetectionXML.DetectionXML(DetectionOutput,1)
 
     numberOfNewDetection = xmlRead.getNubmerOfTagInFile(DetectionTag)
+
+    TrainXMLFile = "detections2.xml"
+
+    Crop_For_RAM_Saving = True
 
     print numbreOfOldDetection
     print numberOfNewDetection
