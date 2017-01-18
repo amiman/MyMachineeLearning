@@ -23,7 +23,8 @@ TestFolder = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectD
 TrainXMLFile = "training.xml"
 ImageFileExtension = ".bmp"
 
-InputImageDirectory = os.path.normpath("C:\_work\Data\SpecficTestCases\SwearLids\AUDI\A4\IN-AN_7822_20161201_115848\In")
+# InputImageDirectory = os.path.normpath("C:\_work\Data\SpecficTestCases\SwearLids\AUDI\A4\IN-AN_7822_20161201_115848\In")
+InputImageDirectory = os.path.normpath("C:\_work\Data\SpecficTestCases\SwearLids\AUDI\IN-AN_7822_20161110_114516\In")
 OutputPath = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectDetector\Output")
 
 ObjectSVMOutput = OutputPath + "\detector.svm"
@@ -146,7 +147,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
 
     TrainXMLFile = "detections2.xml"
 
-    Crop_For_RAM_Saving = True
+    # Crop_For_RAM_Saving = True
 
     print numbreOfOldDetection
     print numberOfNewDetection

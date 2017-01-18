@@ -97,22 +97,29 @@ def CropImageAccodringToDetections(folderOut, inputXmlPath, outputXmlPath):
             print frame.GetFilePath()
             img = cv2.imread(frame.GetFilePath())
 
+            row = img.shape[0]
+            col = img.shape[1]
+
             for box in frame.GetDetections():
 
                 # We have one box crop a predefined area around it
                 bufferY = 240 - int(round(box.height()/2))
                 bufferX = 320 - int(round(box.width() / 2))
 
-                imgCrop = img[box.top()-bufferY:box.top()+bufferY,box.left()-bufferX:box.left()+bufferX]
+                newTop = max(box.top() - bufferY, 0)
+                newLeft = max(box.left() - bufferX, 0)
+                newBottom = min(box.top() + bufferY, row)
+                newRight = min(box.top() + bufferY, col)
+                imgCrop = img[newTop:newBottom,newLeft:newRight]
 
                 # Save image
-                fileName = ntpath.basename(f)
+                fileName = ntpath.basename(frame.GetFilePath())
                 imageFilePath = folderOut + "\\" + fileName
                 print imageFilePath
                 cv2.imwrite(imageFilePath, imgCrop)
 
-                newBox = dlib.rectangle(box.left() - bufferX, box.top() - bufferY, box.left() + bufferX,
-                                            box.top() + bufferY)
+                newBox = dlib.rectangle(box.left()-newLeft, box.top()-newTop, box.right()-newLeft,
+                                            box.bottom()-newTop)
 
                 cropSampledDetections.append(newBox)
 
