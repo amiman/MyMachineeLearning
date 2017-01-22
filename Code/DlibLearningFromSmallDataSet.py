@@ -29,7 +29,7 @@ OutputPath = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectD
 
 ObjectSVMOutput = OutputPath + "\detector.svm"
 DetectionOutput = InputImageDirectory + "\detectionsDownSampled.xml"
-DetectionOutputTemp = InputImageDirectory + "\detections2.xml"
+DetectionOutputTemp = InputImageDirectory + "\detections2FrontAndBack.xml"
 
 DetectionTag = "box"
 
@@ -125,10 +125,10 @@ while(numberOfNewDetection > numbreOfOldDetection):
     learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutputTemp, DetectionOutputTemp)
 
     # Learn using tracking tracking the image backward
-    # learnTracker.Learn(0)
+    learnTracker.Learn(0)
 
     # Save xml detections file
-    # learnTracker.ExportXML()
+    learnTracker.ExportXML()
 
 ################################################## 4. Update for next iteration #############################################################
 
