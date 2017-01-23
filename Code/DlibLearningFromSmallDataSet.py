@@ -28,7 +28,7 @@ InputImageDirectory = os.path.normpath("C:\_work\Data\SpecficTestCases\SwearLids
 OutputPath = os.path.normpath("C:\_work\Data\SpecficTestCases\Wheels\DlibObjectDetector\Output")
 
 ObjectSVMOutput = OutputPath + "\detector.svm"
-DetectionOutput = InputImageDirectory + "\detectionsDownSampled.xml"
+DetectionOutput = InputImageDirectory + "\detections2.xml"
 DetectionOutputTemp = InputImageDirectory + "\detections2FrontAndBack.xml"
 
 DetectionTag = "box"
@@ -114,7 +114,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     if (Verbose):
         print("Tracking detections")
 
-    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutputTemp)
+    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
 
     # Learn using tracking tracking the image forward
     learnTracker.Learn(1)
@@ -122,7 +122,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     # Save xml detections file
     learnTracker.ExportXML()
 
-    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutputTemp, DetectionOutputTemp)
+    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
 
     # Learn using tracking tracking the image backward
     learnTracker.Learn(0)
@@ -135,7 +135,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     if (Verbose):
         print("Update data for next itreation")
 
-    DetectionOutput = DetectionOutputTemp
+    # DetectionOutput = DetectionOutputTemp
     numbreOfOldDetection = numberOfNewDetection
 
     TrainFolder = InputImageDirectory

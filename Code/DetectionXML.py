@@ -81,7 +81,11 @@ class DetectionXML(object):
         tagSearch = 'count(//' + tagName + ')'
         return self.tree.xpath(tagSearch)
 
+    def addImageFrameDetections(self,xmlOldDetections):
 
+        for frameData in xmlOldDetections:
+
+            self.addImage(frameData.GetFilePath(),frameData.GetDetections())
 
 
 

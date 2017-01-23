@@ -15,7 +15,7 @@ class ObjectDetector(object):
     def Detect(self, inputDir, imageExtension, outputXML, verbose=False):
 
         # Create an xml detection file
-        xmlDetection = DetectionXML.DetectionXML(outputXML, 0)
+        self.xmlDetection = DetectionXML.DetectionXML(outputXML, 0)
 
         # Run the detecro on the movie
         imageExtension = "*" + imageExtension
@@ -38,7 +38,14 @@ class ObjectDetector(object):
 
             # Save detection
             if (len(dets) > 0):
-                xmlDetection.addImage(f, dets)
+                self.xmlDetection.addImage(f, dets)
+
+
+    def ExportXMLFile(self):
 
         # Export file
-        xmlDetection.exportXML()
+        self.xmlDetection.exportXML()
+
+    def GetXMLFile(self):
+
+        return self.xmlDetection
