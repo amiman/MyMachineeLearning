@@ -1,12 +1,12 @@
 import os
 import sys
 
-import ObjectTrainner
-import ObjectDetector
-import LearningTracker
-import DetectionXML
+import DlibObjectDetection.MyMachineeLearning.Code.ObjectTrainner
+import DlibObjectDetection.MyMachineeLearning.Code.ObjectDetector
+import DlibObjectDetection.MyMachineeLearning.Code.LearningTracker
+import DlibObjectDetection.MyMachineeLearning.Code.DetectionXML
 
-import Util
+import DlibObjectDetection.MyMachineeLearning.Code.Util
 
 # The idea of learning from a small data set is the following:
 # 1. Use a simple linear classifier that can be trained using small data set and give reasonable results
@@ -56,7 +56,7 @@ if(Down_Sample):
         print("Folder allready exsits")
 
     # Downsample images
-    Util.DownSampleTrainingFolder(TrainFolder,TrainFolderDownSample,3,".jpg",TrainFolder + "\\" + TrainXMLFile, TrainDownsampledXML )
+    DlibObjectDetection.MyMachineeLearning.Code.Util.DownSampleTrainingFolder(TrainFolder, TrainFolderDownSample, 3, ".jpg", TrainFolder + "\\" + TrainXMLFile, TrainDownsampledXML)
 
     TrainFolder = TrainFolderDownSample
 
@@ -70,7 +70,7 @@ if(Down_Sample):
     except:
         print("Folder allready exsits")
 
-    Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 3, ".bmp")
+    DlibObjectDetection.MyMachineeLearning.Code.Util.DownSampleFolder(InputImageDirectory, InputImageDirectoryDownSample, 3, ".bmp")
     InputImageDirectory = InputImageDirectoryDownSample
     DetectionOutput = InputImageDirectory + "\detectionsDownSampled.xml"
     DetectionOutputTemp = InputImageDirectory + "\detections2.xml"
@@ -90,7 +90,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
         except:
             print("Folder allready exsits")
 
-        Util.CropImageAccodringToDetections(TrainFolderCrop,TrainFolder + "\\" + TrainXMLFile,TrainCropdXML)
+        DlibObjectDetection.MyMachineeLearning.Code.Util.CropImageAccodringToDetections(TrainFolderCrop, TrainFolder + "\\" + TrainXMLFile, TrainCropdXML)
         TrainFolder = TrainFolderCrop
 
 ################################################# 1. Learn simpel linear classsfier #############################################################
@@ -98,7 +98,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     if (Verbose):
         print("Training object detector")
 
-    trainer = ObjectTrainner.ObjectTrainner(TrainFolder,TestFolder,TrainXMLFile)
+    trainer = DlibObjectDetection.MyMachineeLearning.Code.ObjectTrainner.ObjectTrainner(TrainFolder, TestFolder, TrainXMLFile)
     trainer.RunTraining(ObjectSVMOutput)
 
 ################################################## 2. Detect objects in videos #############################################################
@@ -106,7 +106,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     if (Verbose):
         print("Detecting object in movie")
 
-    detector = ObjectDetector.ObjectDetector(ObjectSVMOutput)
+    detector = DlibObjectDetection.MyMachineeLearning.Code.ObjectDetector.ObjectDetector(ObjectSVMOutput)
     detector.Detect(InputImageDirectory,ImageFileExtension,DetectionOutput,verbose=True)
 
 ################################################## 3. Track objects in videos #############################################################
@@ -114,7 +114,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     if (Verbose):
         print("Tracking detections")
 
-    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
+    learnTracker = DlibObjectDetection.MyMachineeLearning.Code.LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
 
     # Learn using tracking tracking the image forward
     learnTracker.Learn(1)
@@ -122,7 +122,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     # Save xml detections file
     learnTracker.ExportXML()
 
-    learnTracker = LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
+    learnTracker = DlibObjectDetection.MyMachineeLearning.Code.LearningTracker.LearningTracker(InputImageDirectory, ImageFileExtension, DetectionOutput, DetectionOutput)
 
     # Learn using tracking tracking the image backward
     learnTracker.Learn(0)
@@ -141,7 +141,7 @@ while(numberOfNewDetection > numbreOfOldDetection):
     TrainFolder = InputImageDirectory
 
     # Count the number of new detections
-    xmlRead = DetectionXML.DetectionXML(DetectionOutput,1)
+    xmlRead = DlibObjectDetection.MyMachineeLearning.Code.DetectionXML.DetectionXML(DetectionOutput, 1)
 
     numberOfNewDetection = xmlRead.getNubmerOfTagInFile(DetectionTag)
 

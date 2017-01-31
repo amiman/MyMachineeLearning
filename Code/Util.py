@@ -161,3 +161,60 @@ def CropImageAccodringToDetections(folderOut, inputXmlPath, outputXmlPath):
 
     # Save the new downsampled xml file
     xmlOut.exportXML()
+
+def CropDetections(folderOut, inputXmlPath):
+
+    # Go over the xml file and crop images accroding to detections
+    xmlIn = DetectionXML.DetectionXML(inputXmlPath, 1)
+
+    # Get the detection boxes
+    frameData = xmlIn.getImageDetections()
+
+    # Go over each detection and find the boudnog box for all detections
+    for frame in frameData:
+
+        # Get image
+        img = cv2.imread(frame.GetFilePath())
+
+        # Go over each detection in current image crop and save
+        index = 0
+        for box in frame.GetDetections():
+
+            # Fix coordinate if necessary
+            top, bottom, left, right = GetFixedCorrdinate(img,box)
+
+            # Do the crop
+            imgCrop = img[top:bottom, left:right]
+
+            # Save the image
+            fileName = ntpath.splitext(frame.GetFrameBaseName())[0]
+            extension = ntpath.splitext(frame.GetFrameBaseName())[1]
+            imageFilePath = folderOut + "\\" + fileName + "_" + str(index) + extension
+            cv2.imwrite(imageFilePath, imgCrop)
+
+            index += 1
+
+
+def GetFixedCorrdinate(img, detection):
+
+    row = img.shape[0]
+    col = img.shape[1]
+
+    top = detection.top()
+    bottom = detection.bottom()
+    left = detection.left()
+    right = detection.right()
+
+    if(top < 0):
+        top = 0
+
+    if(bottom > row):
+        bottom = row
+
+    if(left < 0):
+        left = 0
+
+    if(right > col):
+        right = col
+
+    return top,bottom,left,right

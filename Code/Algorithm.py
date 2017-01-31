@@ -19,13 +19,14 @@ import Util
 
 class Algorithm(object):
 
-    def __init__(self, Verbose, TrainFolder, TestFolder, TrainXML, OutputPath, InputImageDirectory,ImageFileExtension):
+    def __init__(self, Verbose, TrainFolder, TestFolder, TrainXML, OutputPath, InputImageDirectory,ImageFileExtension, FirstUseExistingClassfier):
 
         self.Verbose = Verbose
         self.TrainFolder = TrainFolder
         self.TestFolder = TestFolder
         self.TrainXMLFile = TrainXML
         self.OutputPath = OutputPath
+        self.FirstUseExistingClassfier = FirstUseExistingClassfier
 
         self.InputImageDirectory = InputImageDirectory
         self.ImageFileExtension = ImageFileExtension
@@ -40,10 +41,10 @@ class Algorithm(object):
     def Run(self):
 
         # Start loop on stages 1- 4
-        numbreOfOldDetection = 0
-        numberOfNewDetection = 1
+        numbreOfOldDetection = -11
+        numberOfNewDetection = 0
         FirstIter = True
-        while (numberOfNewDetection > numbreOfOldDetection):
+        while (numberOfNewDetection > numbreOfOldDetection + 10):
 
             ################################################## 0. Preprocessiong #############################################################
 
@@ -52,8 +53,9 @@ class Algorithm(object):
             if (self.Verbose):
                 print("Training object detector")
 
-            trainer = ObjectTrainner.ObjectTrainner(self.TrainFolder, self.TestFolder, self.TrainXMLFile)
-            trainer.RunTraining(self.ObjectSVMOutput)
+            if(not self.FirstUseExistingClassfier):
+                trainer = ObjectTrainner.ObjectTrainner(self.TrainFolder, self.TestFolder, self.TrainXMLFile)
+                trainer.RunTraining(self.ObjectSVMOutput)
 
             ################################################## 2. Detect objects in videos #############################################################
 
@@ -111,6 +113,8 @@ class Algorithm(object):
             self.TrainXMLFile = self.DetectionXMLName
 
             # Crop_For_RAM_Saving = True
+            if(self.FirstUseExistingClassfier):
+                self.FirstUseExistingClassfier = False
 
             print numbreOfOldDetection
             print numberOfNewDetection
